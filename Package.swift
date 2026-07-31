@@ -107,7 +107,7 @@ let package = Package(
         ),
         .testTarget(
             name: "LumenUpdateSDKTests",
-            dependencies: ["LumenUpdateSDK", "LumenTesting"]
+            dependencies: ["LumenUpdateSDK", "LumenTesting", "LumenTUF", "LumenCore"]
         ),
         .testTarget(
             name: "LumenSparkleMigrationTests",
