@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build fuzzers + GUI demo
-        run: swift build --target metadata-fuzzer --target archive-fuzzer --target path-fuzzer --target lumen-gui-demo
+        run: swift build
 
       - name: Run fuzzer smoke passes
         run: |
