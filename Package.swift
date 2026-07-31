@@ -91,7 +91,8 @@ let package = Package(
                 "LumenUpdateSDK",
                 "LumenTesting",
             ],
-            path: "Examples/IndependentDemo"
+            path: "Examples/IndependentDemo",
+            exclude: ["README.md"]
         ),
         .testTarget(
             name: "LumenCoreTests",

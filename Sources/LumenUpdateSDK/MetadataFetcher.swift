@@ -13,6 +13,11 @@ public protocol MetadataFetching: Sendable {
 
     /// Fetch a target artifact by its repository path (e.g. "targets/foo.aar").
     func fetchTarget(_ path: String) async throws -> Data
+
+    /// The source URL for a target artifact at the given repository path.
+    /// Drives streaming downloads via the Downloader actor: a file URL for
+    /// local repositories, an https URL for remote ones.
+    func sourceURL(forTarget path: String) -> URL
 }
 
 /// Reads metadata and targets from a local directory repository.
@@ -49,5 +54,9 @@ public struct LocalRepositoryFetcher: MetadataFetching {
         } catch {
             throw LumenError.repositoryUnreachable("Cannot read target \(path): \(error)")
         }
+    }
+
+    public func sourceURL(forTarget path: String) -> URL {
+        root.appendingPathComponent(path)
     }
 }

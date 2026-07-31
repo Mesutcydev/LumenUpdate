@@ -117,36 +117,72 @@ public final class LumenUpdater: ObservableObject {
             throw LumenError.targetInvalid("No update available to install")
         }
 
-        setState(.downloading(DownloadProgressInfo(bytesReceived: 0, totalBytes: Int64(target.info.length))))
-
-        // Fetch the artifact (untrusted bytes)
-        let artifactData = try await fetcher.fetchTarget(target.path)
-
-        setState(.verifying)
-
-        // INVARIANT 1: verify hash + length BEFORE any extraction.
-        // A tampered archive is rejected here, before a single byte is unpacked.
-        let actualHash = Base64URL.encode(LumenSHA256.hash(data: artifactData))
-        if let expectedHash = target.info.hashes["sha256"], expectedHash != actualHash {
-            let s = UpdateState.signatureInvalid(reason: "Target hash mismatch")
-            setState(s)
-            throw LumenError.targetHashMismatch(expected: expectedHash, actual: actualHash)
-        }
-        guard artifactData.count == target.info.length else {
-            let s = UpdateState.signatureInvalid(reason: "Target length mismatch")
-            setState(s)
-            throw LumenError.targetLengthMismatch(expected: target.info.length, actual: artifactData.count)
-        }
-
-        // Stage the verified artifact to a private directory.
         let stagingDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("lumen-staging-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: stagingDir, withIntermediateDirectories: true)
-        let stagedURL = stagingDir.appendingPathComponent(URL(fileURLWithPath: target.path).lastPathComponent)
-        try artifactData.write(to: stagedURL, options: .atomic)
-        stagedArtifactURL = stagedURL
+
+        setState(.downloading(DownloadProgressInfo(bytesReceived: 0, totalBytes: Int64(target.info.length))))
+
+        let sourceURL = fetcher.sourceURL(forTarget: target.path)
+
+        if sourceURL.scheme == "http" || sourceURL.scheme == "https" {
+            // Remote: stream to disk via the Downloader, which verifies hash +
+            // length while writing and enforces the redirect / TLS / host policy.
+            let policy = downloadPolicy()
+            let downloadConfig = DownloadConfiguration(
+                expectedLength: target.info.length,
+                expectedHashes: target.info.hashes,
+                allowedHosts: policy.hosts,
+                requireTLS: policy.tls
+            )
+            let downloader = Downloader(configuration: downloadConfig)
+            do {
+                let result = try await downloader.download(from: sourceURL, to: stagingDir) { [weak self] progress in
+                    Task { @MainActor [weak self] in
+                        self?.setState(.downloading(DownloadProgressInfo(
+                            bytesReceived: progress.bytesReceived,
+                            totalBytes: progress.totalBytes
+                        )))
+                    }
+                }
+                stagedArtifactURL = result.fileURL
+            } catch let error as LumenError {
+                setState(.signatureInvalid(reason: error.description))
+                throw error
+            }
+            setState(.verifying)
+        } else {
+            // Local file: read, then verify hash + length BEFORE any extraction.
+            let artifactData = try await fetcher.fetchTarget(target.path)
+            setState(.verifying)
+
+            // INVARIANT 1: verify hash + length BEFORE any extraction.
+            // A tampered archive is rejected here, before a single byte is unpacked.
+            let actualHash = Base64URL.encode(LumenSHA256.hash(data: artifactData))
+            if let expectedHash = target.info.hashes["sha256"], expectedHash != actualHash {
+                setState(.signatureInvalid(reason: "Target hash mismatch"))
+                throw LumenError.targetHashMismatch(expected: expectedHash, actual: actualHash)
+            }
+            guard artifactData.count == target.info.length else {
+                setState(.signatureInvalid(reason: "Target length mismatch"))
+                throw LumenError.targetLengthMismatch(expected: target.info.length, actual: artifactData.count)
+            }
+
+            let stagedURL = stagingDir.appendingPathComponent(URL(fileURLWithPath: target.path).lastPathComponent)
+            try artifactData.write(to: stagedURL, options: .atomic)
+            stagedArtifactURL = stagedURL
+        }
 
         setState(.readyToInstall(release))
+    }
+
+    /// Resolve the download host/TLS policy: prefer the HTTP fetcher's pinned
+    /// hosts, falling back to the updater configuration.
+    private func downloadPolicy() -> (hosts: [String], tls: Bool) {
+        if let http = fetcher as? HTTPMetadataFetcher {
+            return (http.pinnedHosts, http.tlsRequired)
+        }
+        return (configuration.allowedHosts, configuration.requireTLS)
     }
 
     // MARK: - Install
