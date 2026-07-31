@@ -94,6 +94,34 @@ let package = Package(
             path: "Examples/IndependentDemo",
             exclude: ["README.md"]
         ),
+        .executableTarget(
+            name: "lumen-gui-demo",
+            dependencies: [
+                "LumenCore",
+                "LumenTUF",
+                "LumenUpdateSDK",
+                "LumenUpdateUI",
+            ],
+            path: "Examples/GUIDemo",
+            exclude: ["README.md"]
+        ),
+        // Fuzzer harnesses — connect to libFuzzer/OSS-Fuzz, or run directly
+        // for a fixed-input smoke pass (see the `fuzzers` CI job).
+        .executableTarget(
+            name: "metadata-fuzzer",
+            dependencies: ["LumenCore", "LumenTUF"],
+            path: "Fuzzers/MetadataFuzzer"
+        ),
+        .executableTarget(
+            name: "archive-fuzzer",
+            dependencies: ["LumenCore", "LumenArchive"],
+            path: "Fuzzers/ArchiveHeaderFuzzer"
+        ),
+        .executableTarget(
+            name: "path-fuzzer",
+            dependencies: ["LumenCore", "LumenArchive"],
+            path: "Fuzzers/PathNormalizationFuzzer"
+        ),
         .testTarget(
             name: "LumenCoreTests",
             dependencies: ["LumenCore", "LumenTesting"]

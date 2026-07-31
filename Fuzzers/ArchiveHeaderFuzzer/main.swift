@@ -30,7 +30,7 @@ struct ArchiveHeaderFuzzer {
             ArchiveEntryInfo(path: "big", type: .file, mode: 0o644, size: Int64.max),
         ]
 
-        var crashCount = 0
+        let crashCount = 0
         var rejectedCount = 0
 
         for (i, entry) in testEntries.enumerated() {

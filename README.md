@@ -272,6 +272,7 @@ Lumen **refuses** unsupported installations with a precise manual-update path �
 
 | Document | Contents |
 |:---|:---|
+| ⭐ [`INTEGRATION_GUIDE.md`](./Documentation/INTEGRATION_GUIDE.md) | **Start here** — add Lumen to your app, check & install updates, publish releases |
 | [`SPEC.md`](./Documentation/SPEC.md) | The Lumen TUF Profile — authoritative protocol specification |
 | [`THREAT_MODEL.md`](./Documentation/THREAT_MODEL.md) | Attacker capabilities, trust boundaries, TUF attack classes |
 | [`SECURITY_INVARIANTS.md`](./Documentation/SECURITY_INVARIANTS.md) | The 10 invariants with testable assertions |

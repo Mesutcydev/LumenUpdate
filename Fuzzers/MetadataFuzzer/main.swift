@@ -31,7 +31,7 @@ struct MetadataFuzzer {
             Data(repeating: 0x7B, count: 100000),
         ]
 
-        var crashCount = 0
+        let crashCount = 0
         var errorCount = 0
 
         for (i, input) in testInputs.enumerated() {

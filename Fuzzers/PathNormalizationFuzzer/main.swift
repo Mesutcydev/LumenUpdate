@@ -34,7 +34,7 @@ struct PathNormalizationFuzzer {
             "Contents/\u{FEFF}MacOS",
         ]
 
-        var crashCount = 0
+        let crashCount = 0
         var rejectedCount = 0
 
         for (i, path) in testPaths.enumerated() {

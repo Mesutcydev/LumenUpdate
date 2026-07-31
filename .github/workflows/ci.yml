@@ -50,3 +50,19 @@ jobs:
 
       - name: lumen doctor
         run: ./.build/debug/lumen doctor || true
+
+  fuzz-and-examples:
+    name: Fuzzers + GUI demo build
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build fuzzers + GUI demo
+        run: swift build --target metadata-fuzzer --target archive-fuzzer --target path-fuzzer --target lumen-gui-demo
+
+      - name: Run fuzzer smoke passes
+        run: |
+          ./.build/debug/metadata-fuzzer
+          ./.build/debug/archive-fuzzer
+          ./.build/debug/path-fuzzer
