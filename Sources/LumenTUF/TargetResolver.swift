@@ -101,9 +101,11 @@ public enum TargetResolver {
                 continue
             }
 
-            // Bundle version must be higher than current
+            // Bundle version must be higher than current.
+            // Skip (don't throw) so we can find a higher-version target
+            // in repositories with multiple targets for the same product.
             guard custom.bundleVersion > host.currentBundleVersion else {
-                throw LumenError.targetLowerVersion(received: custom.bundleVersion, stored: host.currentBundleVersion)
+                continue
             }
 
             return ResolvedTarget(path: path, info: info, custom: custom)

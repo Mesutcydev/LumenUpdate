@@ -84,6 +84,17 @@ public enum TUFVerifier {
     ) throws -> VerificationResult {
         let root = inputs.trustRoot
 
+        // Work on a snapshot of versions so a partial failure doesn't poison
+        // the tracker. Only commit at the very end after ALL checks pass.
+        let pendingVersions = versionTracker.export()
+        func pendingVersion(_ role: String) -> Int { pendingVersions[role] ?? 0 }
+        func validatePending(_ newVersion: Int, _ role: String) throws {
+            let stored = pendingVersion(role)
+            guard newVersion > stored else {
+                throw LumenError.versionRollback(role: role, received: newVersion, stored: stored)
+            }
+        }
+
         // === Step 1: Verify timestamp ===
         let timestampDecoded = try MetadataDecoder.decodeSignedTimestamp(inputs.timestampData)
         let timestampCanonical = try TrustRootBootstrap.canonicalizeSigned(timestampDecoded.metadata.signed)
@@ -98,8 +109,8 @@ public enum TUFVerifier {
             roleName: "timestamp"
         )
 
-        // Version check
-        try versionTracker.validateVersion(timestampDecoded.metadata.signed.version, forRole: "timestamp")
+        // Version check (against pending snapshot, not live tracker)
+        try validatePending(timestampDecoded.metadata.signed.version, "timestamp")
 
         // Expiration check
         try ExpirationChecker.checkExpiration(
@@ -136,8 +147,8 @@ public enum TUFVerifier {
             roleName: "snapshot"
         )
 
-        // Version check
-        try versionTracker.validateVersion(snapshotDecoded.metadata.signed.version, forRole: "snapshot")
+        // Version check (against pending snapshot)
+        try validatePending(snapshotDecoded.metadata.signed.version, "snapshot")
 
         // Mix-and-match check: snapshot version must match what timestamp claimed
         guard snapshotDecoded.metadata.signed.version == snapshotMeta.version else {
@@ -178,8 +189,8 @@ public enum TUFVerifier {
             roleName: "targets"
         )
 
-        // Version check
-        try versionTracker.validateVersion(targetsDecoded.metadata.signed.version, forRole: "targets")
+        // Version check (against pending snapshot)
+        try validatePending(targetsDecoded.metadata.signed.version, "targets")
 
         // Mix-and-match check
         guard targetsDecoded.metadata.signed.version == targetsMeta.version else {

@@ -85,20 +85,20 @@ public enum SignatureVerifier {
         var seenKeyids = Set<String>()
 
         for sig in signatures {
-            // Reject duplicate signatures from the same keyid
             guard !seenKeyids.contains(sig.keyid) else {
                 throw LumenError.duplicateSignature(sig.keyid)
             }
             seenKeyids.insert(sig.keyid)
 
-            // The keyid MUST be in the required keyids for this role
+            // Per TUF spec: signatures from keys not in the role's keyids
+            // MUST be ignored, not cause a hard failure. This prevents an
+            // attacker from adding bogus signatures to DoS clients.
             guard requiredKeyids.contains(sig.keyid) else {
-                throw LumenError.unknownKey(sig.keyid)
+                continue
             }
 
-            // The key MUST exist in the trusted keys map
             guard let key = trustedKeys[sig.keyid] else {
-                throw LumenError.unknownKey(sig.keyid)
+                continue
             }
 
             // The key MUST be Ed25519

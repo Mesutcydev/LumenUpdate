@@ -183,12 +183,14 @@ public enum MetadataDecoder {
         }
     }
 
-    /// Re-canonicalize already-parsed metadata into canonical bytes for signature verification.
-    /// This is used when the verifier has a parsed object and needs to produce the bytes
-    /// to verify against.
+    /// Produce canonical bytes for a signed metadata object (the `signed` field only).
+    /// Uses the same CanonicalJSON encoder that the publisher uses, so signing
+    /// and verification always operate on identical bytes.
     public static func canonicalizeForSigning<T: Encodable>(_ value: T) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        return try encoder.encode(value)
+        let raw = try encoder.encode(value)
+        let parsed = try JSONSerialization.jsonObject(with: raw, options: [])
+        return try CanonicalJSON.encode(parsed)
     }
 }

@@ -50,20 +50,22 @@ public enum CanonicalJSON {
 
         // Handle NSNumber carefully: distinguish Bool from Int from Double
         if let num = value as? NSNumber {
-            // Check the Objective-C type encoding to distinguish Bool from numeric
             let typeChar = String(cString: num.objCType)
             if typeChar == "c" || typeChar == "B" {
-                // Bool
                 buffer.append(num.boolValue ? "true" : "false")
                 return
-            } else if typeChar == "i" || typeChar == "l" || typeChar == "q" ||
-                      typeChar == "s" || typeChar == "I" || typeChar == "L" ||
-                      typeChar == "Q" || typeChar == "S" {
-                // Integer
+            } else if typeChar == "q" || typeChar == "Q" || typeChar == "l" || typeChar == "L" {
+                // 64-bit integer: use int64Value/uint64Value to avoid truncation
+                if typeChar == "Q" || typeChar == "L" {
+                    buffer.append(String(num.uint64Value))
+                } else {
+                    buffer.append(String(num.int64Value))
+                }
+                return
+            } else if typeChar == "i" || typeChar == "s" || typeChar == "I" || typeChar == "S" {
                 buffer.append(String(num.intValue))
                 return
             } else {
-                // Double / Float
                 buffer.append(formatNumber(num.doubleValue))
                 return
             }
@@ -140,42 +142,23 @@ public enum CanonicalJSON {
     /// Otherwise use a round-trip representation, stripping trailing zeros.
     private static func formatNumber(_ d: Double) -> String {
         if d.isNaN || d.isInfinite {
-            // RFC 8785 doesn't define these, but we follow common implementations
-            // and reject them at decode time. For safety, emit "null" so verification fails clearly.
             return "null"
         }
         if d == d.rounded() && abs(d) < 1e15 {
-            // Integer-valued double: emit as integer.
             return String(Int64(d))
         }
-        // Use shortest round-trip representation.
-        // Swift's default String(d) gives a round-trip representation.
-        // We must strip trailing zeros after decimal point and handle exponent formatting.
-        var s = String(format: "%.17g", d)
-        // Convert "1e+05" to "100000"; "1e-05" to "0.00001".
+        // Swift's String(Double) produces the shortest round-trip
+        // representation (ECMAScript Number::toString equivalent).
+        let s = String(d)
         if s.contains("e") || s.contains("E") {
-            // Use NumberFormatter or a manual approach.
-            if let decimal = Decimal(string: String(d)) {
+            // Decimal normalizes scientific notation to fixed-point.
+            if let decimal = Decimal(string: s) {
                 var decString = "\(decimal)"
-                // Decimal normalizes scientific notation to fixed.
-                // Strip trailing zeros after decimal point.
                 if decString.contains(".") {
-                    while decString.hasSuffix("0") {
-                        decString.removeLast()
-                    }
-                    if decString.hasSuffix(".") {
-                        decString.removeLast()
-                    }
+                    while decString.hasSuffix("0") { decString.removeLast() }
+                    if decString.hasSuffix(".") { decString.removeLast() }
                 }
                 return decString
-            }
-        } else if s.contains(".") {
-            // Strip trailing zeros after decimal point.
-            while s.hasSuffix("0") {
-                s.removeLast()
-            }
-            if s.hasSuffix(".") {
-                s.removeLast()
             }
         }
         return s
@@ -204,12 +187,11 @@ public enum CanonicalJSON {
             default:
                 if scalar.value < 0x20 {
                     result.append(String(format: "\\u%04x", scalar.value))
-                } else if scalar.value < 0x80 {
-                    result.append(Character(scalar))
                 } else {
-                    // RFC 8785: use \uXXXX for non-ASCII to ensure deterministic
-                    // output across encodings.
-                    result.append(String(format: "\\u%04x", scalar.value))
+                    // RFC 8785 §3.2.2.2: code points >= U+0020 are output as
+                    // literal UTF-8 (including all non-ASCII). Only control
+                    // chars, quote, and backslash are escaped.
+                    result.append(Character(scalar))
                 }
             }
         }

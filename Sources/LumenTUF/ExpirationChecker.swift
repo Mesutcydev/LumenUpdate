@@ -18,10 +18,13 @@ public enum ExpirationChecker {
         role: String,
         clockSkew: TimeInterval = 0
     ) throws {
-        guard let expiresDate = ISO8601DateFormatter.lumen.date(from: expires) else {
+        // Try with fractional seconds first, then without.
+        // Many TUF implementations emit "2026-08-01T00:00:00Z" (no fraction).
+        let expiresDate = ISO8601DateFormatter.lumen.date(from: expires)
+            ?? ISO8601DateFormatter.lumenNoFraction.date(from: expires)
+        guard let expiresDate else {
             throw LumenError.invalidExpiration("Cannot parse '\(expires)' as ISO 8601")
         }
-        // With clock skew tolerance, expired = (now - clockSkew) > expiresDate
         let adjustedNow = now.addingTimeInterval(-clockSkew)
         if adjustedNow > expiresDate {
             throw LumenError.expiredMetadata(
@@ -33,11 +36,16 @@ public enum ExpirationChecker {
     }
 }
 
-/// ISO 8601 date formatter configured for Lumen's needs.
 extension ISO8601DateFormatter {
     public static let lumen: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    public static let lumenNoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
         return f
     }()
 }

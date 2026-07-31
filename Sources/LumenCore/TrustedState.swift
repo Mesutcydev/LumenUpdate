@@ -90,18 +90,17 @@ public enum TrustedStateStore {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(state)
 
-        // Ensure parent directory exists
         let parent = url.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
 
-        // Write atomically
         try data.write(to: url, options: .atomic)
 
-        // fsync
-        let fd = open(url.path, O_RDONLY)
-        if fd >= 0 {
-            fsync(fd)
-            close(fd)
+        // fsync the DIRECTORY to ensure the atomic rename is durable.
+        // fsync on the file itself after rename may reference a stale inode.
+        let dirFd = open(parent.path, O_RDONLY)
+        if dirFd >= 0 {
+            fsync(dirFd)
+            close(dirFd)
         }
     }
 

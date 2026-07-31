@@ -7,7 +7,7 @@ import Foundation
 public final class VersionTracker: @unchecked Sendable {
     private let queue = DispatchQueue(label: "com.lumenupdate.version-tracker", attributes: .concurrent)
     private var versions: [String: Int] = [:]
-    private var maxJump: Int  // maximum allowed version jump per role
+    private let maxJump: Int
 
     public init(maxJump: Int = 1000) {
         self.maxJump = maxJump

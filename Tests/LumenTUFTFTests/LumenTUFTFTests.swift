@@ -540,7 +540,9 @@ final class TargetResolverTests: XCTestCase {
 
         XCTAssertThrowsError(try TargetResolver.resolve(targets: targets, delegatedTargets: [:], host: host)) { error in
             guard let lumenError = error as? LumenError else { XCTFail(); return }
-            XCTAssertEqual(lumenError.code, "target.lowerVersion")
+            // After H2 fix: lower-version targets are skipped (not thrown),
+            // so when ALL targets are lower-version the result is "not found".
+            XCTAssertEqual(lumenError.code, "target.notFound")
         }
     }
 

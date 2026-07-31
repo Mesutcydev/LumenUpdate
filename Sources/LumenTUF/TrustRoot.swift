@@ -66,15 +66,29 @@ public enum TrustRootBootstrap {
             )
         }
 
-        // The new root MUST be signed by the OLD root's keys
+        // Per TUF §5.3.4: the new root MUST be signed by BOTH the old root's
+        // keys AND the new root's own keys. Verifying only the old root would
+        // let a compromised old key publish a root the new keys never endorsed.
         let signedCanonical = try canonicalizeSigned(envelope.signed)
+
+        // 1. Verify against the OLD root's keys
         try SignatureVerifier.verifyThreshold(
             signatures: try convertSignatures(envelope.signatures),
             canonicalBytes: signedCanonical,
             trustedKeys: try convertKeys(oldRoot.metadata.keys),
             requiredKeyids: oldRoot.metadata.roles.root.keyids,
             threshold: oldRoot.metadata.roles.root.threshold,
-            roleName: "root"
+            roleName: "root (old)"
+        )
+
+        // 2. Verify against the NEW root's own keys
+        try SignatureVerifier.verifyThreshold(
+            signatures: try convertSignatures(envelope.signatures),
+            canonicalBytes: signedCanonical,
+            trustedKeys: try convertKeys(envelope.signed.keys),
+            requiredKeyids: envelope.signed.roles.root.keyids,
+            threshold: envelope.signed.roles.root.threshold,
+            roleName: "root (new)"
         )
 
         return TrustRoot(metadata: envelope.signed, canonicalBytes: signedCanonical)
