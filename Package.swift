@@ -78,6 +78,7 @@ let package = Package(
                 "LumenCore",
                 "LumenTUF",
                 "LumenCrypto",
+                "LumenArchive",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),

@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import LumenCore
 import LumenTUF
+import LumenArchive
 
 struct PackageCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
@@ -83,18 +84,21 @@ struct PackageCommand: ParsableCommand {
         let manifestPath = "\(outputDir)/\(appName)-\(shortVersion)-\(architectures.first ?? "universal").bundle-manifest.json"
         try manifestData.write(to: URL(fileURLWithPath: manifestPath))
 
-        // Create archive using Apple Archive (tar for now, .aar in production)
+        // Create the Apple Archive (.aar). writeDirectoryContents archives the
+        // CONTENTS of a directory, so stage the .app into a temp package root to
+        // produce an archive containing "MyApp.app/...".
         let archiveName = "\(appName)-\(shortVersion)-\(architectures.first ?? "universal").aar"
         let archivePath = "\(outputDir)/\(archiveName)"
 
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-        process.arguments = ["-czf", archivePath, "-C", appURL.deletingLastPathComponent().path, appURL.lastPathComponent]
-        try process.run()
-        process.waitUntilExit()
+        let packageRoot = fm.temporaryDirectory.appendingPathComponent("lumen-package-\(UUID().uuidString)")
+        try fm.createDirectory(at: packageRoot, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: packageRoot) }
+        try fm.copyItem(at: appURL, to: packageRoot.appendingPathComponent(appURL.lastPathComponent))
 
-        guard process.terminationStatus == 0 else {
-            throw ValidationError("Archive creation failed with exit code \(process.terminationStatus)")
+        do {
+            try AppleArchiveCodec.encode(directory: packageRoot, to: URL(fileURLWithPath: archivePath))
+        } catch {
+            throw ValidationError("Apple Archive creation failed: \(error)")
         }
 
         let archiveData = try Data(contentsOf: URL(fileURLWithPath: archivePath))
