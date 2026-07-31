@@ -10,6 +10,7 @@ let package = Package(
         .library(name: "LumenTUF", targets: ["LumenTUF"]),
         .library(name: "LumenCrypto", targets: ["LumenCrypto"]),
         .library(name: "LumenDownload", targets: ["LumenDownload"]),
+        .library(name: "LumenArchive", targets: ["LumenArchive"]),
         .library(name: "LumenTesting", targets: ["LumenTesting"]),
         .executable(name: "lumen", targets: ["lumen"]),
     ],
@@ -34,6 +35,10 @@ let package = Package(
         ),
         .target(
             name: "LumenDownload",
+            dependencies: ["LumenCore"]
+        ),
+        .target(
+            name: "LumenArchive",
             dependencies: ["LumenCore"]
         ),
         .target(
@@ -64,6 +69,10 @@ let package = Package(
         .testTarget(
             name: "LumenDownloadTests",
             dependencies: ["LumenDownload", "LumenTesting"]
+        ),
+        .testTarget(
+            name: "LumenArchiveTests",
+            dependencies: ["LumenArchive", "LumenTesting"]
         ),
     ]
 )
