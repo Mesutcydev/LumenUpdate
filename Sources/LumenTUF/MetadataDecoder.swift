@@ -38,6 +38,9 @@ public enum MetadataDecoder {
         guard meta._type == "Root" else {
             throw LumenError.invalidMetadataFormat("Expected _type 'Root', got '\(meta._type)'")
         }
+        guard meta.specVersion == "1.0" else {
+            throw LumenError.invalidMetadataFormat("Unsupported spec_version '\(meta.specVersion)', expected '1.0'")
+        }
         guard meta.version >= 1 else {
             throw LumenError.invalidVersion("Root version must be >= 1, got \(meta.version)")
         }

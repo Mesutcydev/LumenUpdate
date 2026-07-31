@@ -53,36 +53,23 @@ public struct VerificationResult: Sendable {
 
 public enum TUFVerifier {
 
-    // MARK: - TUF-to-Crypto type adapters
-
-    /// Convert TUF signatures to LumenCrypto RawSignatures.
-    private static func convertSignatures(_ sigs: [TUFSignature]) throws -> [RawSignature] {
-        return try sigs.map { sig in
-            let sigData = try Base64URL.decode(sig.sig)
-            return RawSignature(keyid: sig.keyid, signature: sigData)
-        }
-    }
-
-    /// Convert TUF keys map to LumenCrypto RawPublicKey map.
-    private static func convertKeys(_ keys: [String: TUFKey]) throws -> [String: RawPublicKey] {
-        var result: [String: RawPublicKey] = [:]
-        for (keyid, key) in keys {
-            let keyData = try Base64URL.decode(key.keyval.publicKey)
-            result[keyid] = RawPublicKey(
-                keyid: keyid,
-                keyData: keyData,
-                keytype: key.keytype,
-                scheme: key.scheme
-            )
-        }
-        return result
-    }
-
     public static func verify(
         inputs: VerificationInputs,
         versionTracker: VersionTracker = VersionTracker()
     ) throws -> VerificationResult {
         let root = inputs.trustRoot
+
+        // M3: Enforce total metadata size limit (SPEC.md §6: 100 KB)
+        let totalSize = inputs.timestampData.count + inputs.snapshotData.count
+            + inputs.targetsData.count
+            + inputs.delegatedData.values.reduce(0) { $0 + $1.count }
+        guard totalSize <= MetadataSizeLimits.totalMetadataFetch else {
+            throw LumenError.metadataTooLarge(
+                role: "total",
+                size: totalSize,
+                limit: MetadataSizeLimits.totalMetadataFetch
+            )
+        }
 
         // Work on a snapshot of versions so a partial failure doesn't poison
         // the tracker. Only commit at the very end after ALL checks pass.
@@ -101,9 +88,9 @@ public enum TUFVerifier {
 
         // Verify timestamp signatures
         try SignatureVerifier.verifyThreshold(
-            signatures: try convertSignatures(timestampDecoded.metadata.signatures),
+            signatures: try TUFTypeAdapters.convertSignatures(timestampDecoded.metadata.signatures),
             canonicalBytes: timestampCanonical,
-            trustedKeys: try convertKeys(root.metadata.keys),
+            trustedKeys: try TUFTypeAdapters.convertKeys(root.metadata.keys),
             requiredKeyids: root.metadata.roles.timestamp.keyids,
             threshold: root.metadata.roles.timestamp.threshold,
             roleName: "timestamp"
@@ -139,9 +126,9 @@ public enum TUFVerifier {
 
         // Verify snapshot signatures
         try SignatureVerifier.verifyThreshold(
-            signatures: try convertSignatures(snapshotDecoded.metadata.signatures),
+            signatures: try TUFTypeAdapters.convertSignatures(snapshotDecoded.metadata.signatures),
             canonicalBytes: snapshotCanonical,
-            trustedKeys: try convertKeys(root.metadata.keys),
+            trustedKeys: try TUFTypeAdapters.convertKeys(root.metadata.keys),
             requiredKeyids: root.metadata.roles.snapshot.keyids,
             threshold: root.metadata.roles.snapshot.threshold,
             roleName: "snapshot"
@@ -181,9 +168,9 @@ public enum TUFVerifier {
 
         // Verify targets signatures
         try SignatureVerifier.verifyThreshold(
-            signatures: try convertSignatures(targetsDecoded.metadata.signatures),
+            signatures: try TUFTypeAdapters.convertSignatures(targetsDecoded.metadata.signatures),
             canonicalBytes: targetsCanonical,
-            trustedKeys: try convertKeys(root.metadata.keys),
+            trustedKeys: try TUFTypeAdapters.convertKeys(root.metadata.keys),
             requiredKeyids: root.metadata.roles.targets.keyids,
             threshold: root.metadata.roles.targets.threshold,
             roleName: "targets"
@@ -241,9 +228,9 @@ public enum TUFVerifier {
             }
 
             try SignatureVerifier.verifyThreshold(
-                signatures: try convertSignatures(decoded.metadata.signatures),
+                signatures: try TUFTypeAdapters.convertSignatures(decoded.metadata.signatures),
                 canonicalBytes: canonical,
-                trustedKeys: try convertKeys(delegationKeys),
+                trustedKeys: try TUFTypeAdapters.convertKeys(delegationKeys),
                 requiredKeyids: delegation.keyids,
                 threshold: delegation.threshold,
                 roleName: role
@@ -254,6 +241,15 @@ public enum TUFVerifier {
                 now: inputs.now,
                 role: role
             )
+
+            // H3: Verify every target in this delegated role falls within
+            // the delegation's authorized path patterns. A delegated role
+            // signing targets outside its paths is a security violation.
+            for targetPath in decoded.metadata.signed.targets.keys {
+                guard DelegationPathMatcher.isPathAuthorized(targetPath, by: delegation.paths) else {
+                    throw LumenError.delegationPathMismatch(role: role, path: targetPath)
+                }
+            }
 
             delegatedMetadata[role] = decoded.metadata.signed
         }

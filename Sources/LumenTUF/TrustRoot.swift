@@ -32,9 +32,9 @@ public enum TrustRootBootstrap {
 
         // The root is self-signed: signatures must be from keys in roles.root.keyids
         try SignatureVerifier.verifyThreshold(
-            signatures: try convertSignatures(envelope.signatures),
+            signatures: try TUFTypeAdapters.convertSignatures(envelope.signatures),
             canonicalBytes: signedCanonical,
-            trustedKeys: try convertKeys(envelope.signed.keys),
+            trustedKeys: try TUFTypeAdapters.convertKeys(envelope.signed.keys),
             requiredKeyids: envelope.signed.roles.root.keyids,
             threshold: envelope.signed.roles.root.threshold,
             roleName: "root"
@@ -73,9 +73,9 @@ public enum TrustRootBootstrap {
 
         // 1. Verify against the OLD root's keys
         try SignatureVerifier.verifyThreshold(
-            signatures: try convertSignatures(envelope.signatures),
+            signatures: try TUFTypeAdapters.convertSignatures(envelope.signatures),
             canonicalBytes: signedCanonical,
-            trustedKeys: try convertKeys(oldRoot.metadata.keys),
+            trustedKeys: try TUFTypeAdapters.convertKeys(oldRoot.metadata.keys),
             requiredKeyids: oldRoot.metadata.roles.root.keyids,
             threshold: oldRoot.metadata.roles.root.threshold,
             roleName: "root (old)"
@@ -83,9 +83,9 @@ public enum TrustRootBootstrap {
 
         // 2. Verify against the NEW root's own keys
         try SignatureVerifier.verifyThreshold(
-            signatures: try convertSignatures(envelope.signatures),
+            signatures: try TUFTypeAdapters.convertSignatures(envelope.signatures),
             canonicalBytes: signedCanonical,
-            trustedKeys: try convertKeys(envelope.signed.keys),
+            trustedKeys: try TUFTypeAdapters.convertKeys(envelope.signed.keys),
             requiredKeyids: envelope.signed.roles.root.keyids,
             threshold: envelope.signed.roles.root.threshold,
             roleName: "root (new)"
@@ -98,28 +98,5 @@ public enum TrustRootBootstrap {
     /// This is what signatures are computed over.
     public static func canonicalizeSigned<T: Encodable>(_ value: T) throws -> Data {
         return try MetadataDecoder.canonicalizeForSigning(value)
-    }
-
-    // MARK: - Type adapters
-
-    private static func convertSignatures(_ sigs: [TUFSignature]) throws -> [RawSignature] {
-        return try sigs.map { sig in
-            let sigData = try Base64URL.decode(sig.sig)
-            return RawSignature(keyid: sig.keyid, signature: sigData)
-        }
-    }
-
-    private static func convertKeys(_ keys: [String: TUFKey]) throws -> [String: RawPublicKey] {
-        var result: [String: RawPublicKey] = [:]
-        for (keyid, key) in keys {
-            let keyData = try Base64URL.decode(key.keyval.publicKey)
-            result[keyid] = RawPublicKey(
-                keyid: keyid,
-                keyData: keyData,
-                keytype: key.keytype,
-                scheme: key.scheme
-            )
-        }
-        return result
     }
 }

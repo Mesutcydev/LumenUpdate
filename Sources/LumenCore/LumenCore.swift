@@ -45,7 +45,7 @@ public enum MetadataRole: String, Codable, Sendable, CaseIterable, Hashable {
 /// All errors raised by Lumen modules. Each case has an associated code and
 /// human-readable description. The code is stable for programmatic handling;
 /// the description is for logging and user display.
-public enum LumenError: Error, Equatable, Sendable {
+public enum LumenError: Error, Equatable, Sendable, LocalizedError {
     // MARK: Metadata errors
     case invalidMetadataFormat(String)
     case invalidBase64(String)
@@ -299,4 +299,6 @@ public enum LumenError: Error, Equatable, Sendable {
         case .keychainFailure(let s): return "Keychain operation failed: \(s)"
         }
     }
+
+    public var errorDescription: String? { description }
 }
