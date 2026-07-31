@@ -9,6 +9,7 @@ let package = Package(
         .library(name: "LumenCore", targets: ["LumenCore"]),
         .library(name: "LumenTUF", targets: ["LumenTUF"]),
         .library(name: "LumenCrypto", targets: ["LumenCrypto"]),
+        .library(name: "LumenDownload", targets: ["LumenDownload"]),
         .library(name: "LumenTesting", targets: ["LumenTesting"]),
         .executable(name: "lumen", targets: ["lumen"]),
     ],
@@ -30,6 +31,10 @@ let package = Package(
                 "LumenCore",
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
+        ),
+        .target(
+            name: "LumenDownload",
+            dependencies: ["LumenCore"]
         ),
         .target(
             name: "LumenTesting",
@@ -55,6 +60,10 @@ let package = Package(
         .testTarget(
             name: "LumenCryptoTests",
             dependencies: ["LumenCrypto", "LumenTesting"]
+        ),
+        .testTarget(
+            name: "LumenDownloadTests",
+            dependencies: ["LumenDownload", "LumenTesting"]
         ),
     ]
 )
