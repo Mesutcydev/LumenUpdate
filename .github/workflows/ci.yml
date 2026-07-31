@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Lumen requires macOS 13+ and the Apple Archive framework. Both runners are
+# Apple Silicon (arm64), matching the architecture the tests assume.
+jobs:
+  build-and-test:
+    name: Build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          swift --version
+          sw_vers
+
+      - name: Build
+        run: swift build --build-tests
+
+      - name: Run unit + integration tests
+        run: swift test
+
+      - name: Run IndependentDemo (§20 end-to-end proof)
+        run: swift run independent-demo
+
+  cli-smoke:
+    name: lumen CLI smoke test
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build lumen CLI
+        run: swift build --product lumen
+
+      - name: lumen --help
+        run: ./.build/debug/lumen --help
+
+      - name: lumen doctor
+        run: ./.build/debug/lumen doctor || true
