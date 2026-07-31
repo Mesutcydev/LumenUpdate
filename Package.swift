@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "LumenInstall", targets: ["LumenInstall"]),
         .library(name: "LumenUpdateSDK", targets: ["LumenUpdateSDK"]),
         .library(name: "LumenUpdateUI", targets: ["LumenUpdateUI"]),
+        .library(name: "LumenSparkleMigration", targets: ["LumenSparkleMigration"]),
         .library(name: "LumenTesting", targets: ["LumenTesting"]),
         .executable(name: "lumen", targets: ["lumen"]),
     ],
@@ -64,6 +65,10 @@ let package = Package(
             dependencies: ["LumenUpdateSDK"]
         ),
         .target(
+            name: "LumenSparkleMigration",
+            dependencies: ["LumenCore", "LumenTUF"]
+        ),
+        .target(
             name: "LumenTesting",
             dependencies: ["LumenCore", "LumenCrypto", "LumenTUF"]
         ),
@@ -103,6 +108,10 @@ let package = Package(
         .testTarget(
             name: "LumenUpdateSDKTests",
             dependencies: ["LumenUpdateSDK", "LumenTesting"]
+        ),
+        .testTarget(
+            name: "LumenSparkleMigrationTests",
+            dependencies: ["LumenSparkleMigration", "LumenTesting"]
         ),
     ]
 )
