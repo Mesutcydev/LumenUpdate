@@ -1,0 +1,111 @@
+// TrustRoot.swift
+// Root trust bootstrap and validation.
+//
+// The first root metadata is bundled with the application. It is self-signed
+// (signed by the keys it defines for the root role). After bootstrap, root
+// rotation is supported via signed root metadata with a higher version.
+
+import Foundation
+import LumenCrypto
+
+public struct TrustRoot: Codable, Equatable, Sendable {
+    public let metadata: TUFRootMetadata
+    public let canonicalBytes: Data
+    public let version: Int
+
+    public init(metadata: TUFRootMetadata, canonicalBytes: Data) {
+        self.metadata = metadata
+        self.canonicalBytes = canonicalBytes
+        self.version = metadata.version
+    }
+}
+
+public enum TrustRootBootstrap {
+
+    /// Bootstrap a trust root from bundled raw metadata bytes.
+    /// The bundled root is verified against itself (self-signed) using the
+    /// root keys defined in the metadata.
+    public static func bootstrap(from data: Data) throws -> TrustRoot {
+        let decoded = try MetadataDecoder.decodeSignedRoot(data)
+        let envelope = decoded.metadata
+        let signedCanonical = try canonicalizeSigned(envelope.signed)
+
+        // The root is self-signed: signatures must be from keys in roles.root.keyids
+        try SignatureVerifier.verifyThreshold(
+            signatures: try convertSignatures(envelope.signatures),
+            canonicalBytes: signedCanonical,
+            trustedKeys: try convertKeys(envelope.signed.keys),
+            requiredKeyids: envelope.signed.roles.root.keyids,
+            threshold: envelope.signed.roles.root.threshold,
+            roleName: "root"
+        )
+
+        return TrustRoot(metadata: envelope.signed, canonicalBytes: signedCanonical)
+    }
+
+    /// Validate a new root metadata against a trusted root.
+    /// The new root MUST be signed by the OLD root's keys (for root rotation).
+    /// After validation, the new root's version MUST be > the old root's version.
+    public static func validateRotation(
+        newData: Data,
+        oldRoot: TrustRoot
+    ) throws -> TrustRoot {
+        // Version must be strictly greater
+        guard oldRoot.version > 0 else {
+            throw LumenError.noTrustedRoot
+        }
+
+        let decoded = try MetadataDecoder.decodeSignedRoot(newData)
+        let envelope = decoded.metadata
+
+        guard envelope.signed.version > oldRoot.version else {
+            throw LumenError.versionRollback(
+                role: "root",
+                received: envelope.signed.version,
+                stored: oldRoot.version
+            )
+        }
+
+        // The new root MUST be signed by the OLD root's keys
+        let signedCanonical = try canonicalizeSigned(envelope.signed)
+        try SignatureVerifier.verifyThreshold(
+            signatures: try convertSignatures(envelope.signatures),
+            canonicalBytes: signedCanonical,
+            trustedKeys: try convertKeys(oldRoot.metadata.keys),
+            requiredKeyids: oldRoot.metadata.roles.root.keyids,
+            threshold: oldRoot.metadata.roles.root.threshold,
+            roleName: "root"
+        )
+
+        return TrustRoot(metadata: envelope.signed, canonicalBytes: signedCanonical)
+    }
+
+    /// Compute canonical bytes for a signed metadata object (the `signed` field only).
+    /// This is what signatures are computed over.
+    public static func canonicalizeSigned<T: Encodable>(_ value: T) throws -> Data {
+        return try MetadataDecoder.canonicalizeForSigning(value)
+    }
+
+    // MARK: - Type adapters
+
+    private static func convertSignatures(_ sigs: [TUFSignature]) throws -> [RawSignature] {
+        return try sigs.map { sig in
+            let sigData = try Base64URL.decode(sig.sig)
+            return RawSignature(keyid: sig.keyid, signature: sigData)
+        }
+    }
+
+    private static func convertKeys(_ keys: [String: TUFKey]) throws -> [String: RawPublicKey] {
+        var result: [String: RawPublicKey] = [:]
+        for (keyid, key) in keys {
+            let keyData = try Base64URL.decode(key.keyval.publicKey)
+            result[keyid] = RawPublicKey(
+                keyid: keyid,
+                keyData: keyData,
+                keytype: key.keytype,
+                scheme: key.scheme
+            )
+        }
+        return result
+    }
+}

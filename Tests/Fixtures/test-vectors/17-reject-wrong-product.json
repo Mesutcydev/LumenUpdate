@@ -1,0 +1,213 @@
+{
+  "description": "Target metadata advertises the wrong product identifier.",
+  "expectedError": "PRODUCT_MISMATCH",
+  "expectedResult": "reject",
+  "metadata": {
+    "root.json": {
+      "signatures": [
+        {
+          "keyid": "c168806fe59a7ed3567cfd84d38586a18fd31b58f2e38cc4ac264025c456d670",
+          "sig": "iPnUs+5qTshIYSAfxeg7o8baErXeAE8QeEzjEN/nErBQREKASkd1p6ErMNHRzxZLKtNc4ANVE7+j/dP4IP1zAA=="
+        },
+        {
+          "keyid": "6a10ef42a1c8d2cbf1af4b0768e3eeeaaeb87b1047f8202c4e514e0aca45deef",
+          "sig": "TIixXCuCHvxYJbR9EFIr94OreVOszYyI6zJrmLvjk7lz5LRvKjFbPrEV2k8Efma+1OzcisADpeQVdKgpJA9YDw=="
+        }
+      ],
+      "signed": {
+        "consistent_snapshot": true,
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "reject-wrong-product"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "keys": {
+          "6a10ef42a1c8d2cbf1af4b0768e3eeeaaeb87b1047f8202c4e514e0aca45deef": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "UhpVJnPA8momuVYqtLk9l0iesMjOVX+8GnuoiaOeZOc="
+            },
+            "scheme": "ed25519"
+          },
+          "6b5bc09894fafc9177d5cb6265664ccd1af36b9127153902138ce15ffaf1d9a6": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "G/xGD52/nKOLw4PjaxK50UAyH2DAczESdI5LEoNQe70="
+            },
+            "scheme": "ed25519"
+          },
+          "6fc84ec1f4a7b97210a00e15ce2a13367f30229c656591062a1ee9379d0a7e86": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "l/cOff682oqTnHvcSCMhZKy4rVwbu1zPjLAdQ08ePO0="
+            },
+            "scheme": "ed25519"
+          },
+          "a7a435e1b037f61c0ce5bef9721d13b7bfa236dc87bff57215d344b40a4d98aa": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "SIYzB00OzlNEdadmfzLztd7ozkYhmQcDYj2QcbhmiAw="
+            },
+            "scheme": "ed25519"
+          },
+          "c168806fe59a7ed3567cfd84d38586a18fd31b58f2e38cc4ac264025c456d670": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "FFHtn7VkaqnIaDiRuijKeFYOb+2lxV1gogMfenM1qWA="
+            },
+            "scheme": "ed25519"
+          },
+          "cd0c7d75ba897dd7a66adc60e9630d729d211a212dbf658e5d888e4d941fcdd6": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "lPLFcFNmC8hxoMMu5VOYKsEeHsiM1x2mjhMbjlXwn0g="
+            },
+            "scheme": "ed25519"
+          }
+        },
+        "roles": {
+          "root": {
+            "keyids": [
+              "c168806fe59a7ed3567cfd84d38586a18fd31b58f2e38cc4ac264025c456d670",
+              "6a10ef42a1c8d2cbf1af4b0768e3eeeaaeb87b1047f8202c4e514e0aca45deef"
+            ],
+            "threshold": 2
+          },
+          "snapshot": {
+            "keyids": [
+              "6fc84ec1f4a7b97210a00e15ce2a13367f30229c656591062a1ee9379d0a7e86"
+            ],
+            "threshold": 1
+          },
+          "targets": {
+            "keyids": [
+              "a7a435e1b037f61c0ce5bef9721d13b7bfa236dc87bff57215d344b40a4d98aa",
+              "6b5bc09894fafc9177d5cb6265664ccd1af36b9127153902138ce15ffaf1d9a6"
+            ],
+            "threshold": 2
+          },
+          "timestamp": {
+            "keyids": [
+              "cd0c7d75ba897dd7a66adc60e9630d729d211a212dbf658e5d888e4d941fcdd6"
+            ],
+            "threshold": 1
+          }
+        },
+        "spec_version": "1.0.0",
+        "type": "root",
+        "version": 5
+      }
+    },
+    "snapshot.json": {
+      "signatures": [
+        {
+          "keyid": "6fc84ec1f4a7b97210a00e15ce2a13367f30229c656591062a1ee9379d0a7e86",
+          "sig": "R+EQlGeTYe3+RJfF58Ii9DcpOAHHDV7YMlv6C252T6pXYp+G72QmpXT7Cnj87AGyjZOZhMT96SbsbMMxKDTVDQ=="
+        }
+      ],
+      "signed": {
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "reject-wrong-product"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "meta": {
+          "root.json": {
+            "hashes": {
+              "sha256": "856518be2af26688de926e2fc53238cbff64521bea0f3ee6209ebf56730e2d6d"
+            },
+            "length": 2974,
+            "version": 5
+          },
+          "targets.json": {
+            "hashes": {
+              "sha256": "869b1494819b34ad2ad6306fd0a1c8ca19e310090f613aaddd28bee2a36636f8"
+            },
+            "length": 1419,
+            "version": 8
+          }
+        },
+        "spec_version": "1.0.0",
+        "type": "snapshot",
+        "version": 8
+      }
+    },
+    "targetPath": "targets/com.other.product/stable/203/LumenUpdate-2.0.3-arm64.zip",
+    "targets.json": {
+      "signatures": [
+        {
+          "keyid": "a7a435e1b037f61c0ce5bef9721d13b7bfa236dc87bff57215d344b40a4d98aa",
+          "sig": "Px6GH0DrdtFldb3jBQei70xB9QQjN7r2LxEubVinhMq39y1D1eBAW7ixJnZ5+tIoPdoZbvTC3KYKwMUNmLAsCA=="
+        },
+        {
+          "keyid": "6b5bc09894fafc9177d5cb6265664ccd1af36b9127153902138ce15ffaf1d9a6",
+          "sig": "wGc5UYpyTJo/6zZOjnTAQruYs6HfqWcQGLeGfo1Et9ZZiyZhDBoZemzAt7lrRp+vYRYHqPl/RW5BzHHCCMjvCA=="
+        }
+      ],
+      "signed": {
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "reject-wrong-product"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "spec_version": "1.0.0",
+        "targets": {
+          "targets/com.other.product/stable/203/LumenUpdate-2.0.3-arm64.zip": {
+            "custom": {
+              "architectures": [
+                "arm64"
+              ],
+              "bundleIdentifier": "com.other.product",
+              "bundleVersion": 203,
+              "channel": "stable",
+              "critical": false,
+              "minimumSystemVersion": "13.0",
+              "productID": "com.other.product",
+              "releaseNotesTarget": "notes/2.0.3.md",
+              "rollout": {
+                "percentage": 100,
+                "seed": "release-203"
+              },
+              "shortVersion": "2.0.3"
+            },
+            "hashes": {
+              "sha256": "74ed2688d3ab90e81f48da909bdce1abd5068e76acfd859bf3d50d9313273da4"
+            },
+            "length": 99
+          }
+        },
+        "type": "targets",
+        "version": 8
+      }
+    },
+    "timestamp.json": {
+      "signatures": [
+        {
+          "keyid": "cd0c7d75ba897dd7a66adc60e9630d729d211a212dbf658e5d888e4d941fcdd6",
+          "sig": "w3TW/PrWyySrz0I2BQKoAiL0fFf9ngHGNP0wwACd2faPYxVK5mYw5SE0s05HCJsAjzCHndvKxZJQBh556NJBAA=="
+        }
+      ],
+      "signed": {
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "reject-wrong-product"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "meta": {
+          "snapshot.json": {
+            "hashes": {
+              "sha256": "b1aa8a29bf223b8961ef1fbf194b099bd5db6b8fd397b58cacadbfebe8bc67bf"
+            },
+            "length": 875,
+            "version": 8
+          }
+        },
+        "spec_version": "1.0.0",
+        "type": "timestamp",
+        "version": 8
+      }
+    }
+  },
+  "vectorVersion": 1,
+  "whatIsWrong": "target custom.productID is com.other.product instead of com.example.lumen"
+}

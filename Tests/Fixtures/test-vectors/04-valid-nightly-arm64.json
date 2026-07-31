@@ -1,0 +1,211 @@
+{
+  "description": "Nightly arm64 update with a critical flag and valid signatures.",
+  "expectedResult": "accept",
+  "metadata": {
+    "root.json": {
+      "signatures": [
+        {
+          "keyid": "c168806fe59a7ed3567cfd84d38586a18fd31b58f2e38cc4ac264025c456d670",
+          "sig": "Hc2dLEsHtYe5iD+nD/+bKbmlD6sjU/L+x2NPDmXmvu0o94ac6MxDgw+zCgURlYKvGiEC53tLPxrhsXTKp5nwBA=="
+        },
+        {
+          "keyid": "6a10ef42a1c8d2cbf1af4b0768e3eeeaaeb87b1047f8202c4e514e0aca45deef",
+          "sig": "daSxQYxyW9h+hkBNYQR2iIRTOWUtsgL+RFHv9r82iTR+9YYXO2Of/vRsNihBv4JS3t5RXIHZJloBHjCH5F4kDQ=="
+        }
+      ],
+      "signed": {
+        "consistent_snapshot": true,
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "valid-nightly-arm64"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "keys": {
+          "6a10ef42a1c8d2cbf1af4b0768e3eeeaaeb87b1047f8202c4e514e0aca45deef": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "UhpVJnPA8momuVYqtLk9l0iesMjOVX+8GnuoiaOeZOc="
+            },
+            "scheme": "ed25519"
+          },
+          "6b5bc09894fafc9177d5cb6265664ccd1af36b9127153902138ce15ffaf1d9a6": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "G/xGD52/nKOLw4PjaxK50UAyH2DAczESdI5LEoNQe70="
+            },
+            "scheme": "ed25519"
+          },
+          "6fc84ec1f4a7b97210a00e15ce2a13367f30229c656591062a1ee9379d0a7e86": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "l/cOff682oqTnHvcSCMhZKy4rVwbu1zPjLAdQ08ePO0="
+            },
+            "scheme": "ed25519"
+          },
+          "a7a435e1b037f61c0ce5bef9721d13b7bfa236dc87bff57215d344b40a4d98aa": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "SIYzB00OzlNEdadmfzLztd7ozkYhmQcDYj2QcbhmiAw="
+            },
+            "scheme": "ed25519"
+          },
+          "c168806fe59a7ed3567cfd84d38586a18fd31b58f2e38cc4ac264025c456d670": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "FFHtn7VkaqnIaDiRuijKeFYOb+2lxV1gogMfenM1qWA="
+            },
+            "scheme": "ed25519"
+          },
+          "cd0c7d75ba897dd7a66adc60e9630d729d211a212dbf658e5d888e4d941fcdd6": {
+            "keytype": "ed25519",
+            "keyval": {
+              "public": "lPLFcFNmC8hxoMMu5VOYKsEeHsiM1x2mjhMbjlXwn0g="
+            },
+            "scheme": "ed25519"
+          }
+        },
+        "roles": {
+          "root": {
+            "keyids": [
+              "c168806fe59a7ed3567cfd84d38586a18fd31b58f2e38cc4ac264025c456d670",
+              "6a10ef42a1c8d2cbf1af4b0768e3eeeaaeb87b1047f8202c4e514e0aca45deef"
+            ],
+            "threshold": 2
+          },
+          "snapshot": {
+            "keyids": [
+              "6fc84ec1f4a7b97210a00e15ce2a13367f30229c656591062a1ee9379d0a7e86"
+            ],
+            "threshold": 1
+          },
+          "targets": {
+            "keyids": [
+              "a7a435e1b037f61c0ce5bef9721d13b7bfa236dc87bff57215d344b40a4d98aa",
+              "6b5bc09894fafc9177d5cb6265664ccd1af36b9127153902138ce15ffaf1d9a6"
+            ],
+            "threshold": 2
+          },
+          "timestamp": {
+            "keyids": [
+              "cd0c7d75ba897dd7a66adc60e9630d729d211a212dbf658e5d888e4d941fcdd6"
+            ],
+            "threshold": 1
+          }
+        },
+        "spec_version": "1.0.0",
+        "type": "root",
+        "version": 5
+      }
+    },
+    "snapshot.json": {
+      "signatures": [
+        {
+          "keyid": "6fc84ec1f4a7b97210a00e15ce2a13367f30229c656591062a1ee9379d0a7e86",
+          "sig": "dXixlo7POvBgzZZTjOOVzbBNEohA4vIReDMW5M2zEbyN4zVnq27qf/9ej8rwEa3g7KJ/ICCo6t8tPe1wmou7Bg=="
+        }
+      ],
+      "signed": {
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "valid-nightly-arm64"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "meta": {
+          "root.json": {
+            "hashes": {
+              "sha256": "583f6abcf6221cbaa3ff4cd4a78f99f102346d9ef1a20851ab7bc5b5b964325f"
+            },
+            "length": 2973,
+            "version": 5
+          },
+          "targets.json": {
+            "hashes": {
+              "sha256": "3737b4ab573df8812e5894c58f68627f4b254772e35be5916b3b4c5e93272771"
+            },
+            "length": 1450,
+            "version": 8
+          }
+        },
+        "spec_version": "1.0.0",
+        "type": "snapshot",
+        "version": 8
+      }
+    },
+    "targetPath": "targets/com.example.lumen/nightly/205/LumenUpdate-2.2.0-nightly.7-arm64.zip",
+    "targets.json": {
+      "signatures": [
+        {
+          "keyid": "a7a435e1b037f61c0ce5bef9721d13b7bfa236dc87bff57215d344b40a4d98aa",
+          "sig": "bGkCk/zH4234yRJALAo0EiEaRQ+9r+PSZc4uwuvFItSnSJlZ3dv+xsLp9mhGQ++zw/zOvdgFrqKSZQYXGAHtBw=="
+        },
+        {
+          "keyid": "6b5bc09894fafc9177d5cb6265664ccd1af36b9127153902138ce15ffaf1d9a6",
+          "sig": "qo4GOvGz5xl0DORSKiLVQtfD2xoriD05oRAkHrkVJa2ESEpDWNEYWK2aI6hgAXMmg7eBbynjM51tc2UParY/Aw=="
+        }
+      ],
+      "signed": {
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "valid-nightly-arm64"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "spec_version": "1.0.0",
+        "targets": {
+          "targets/com.example.lumen/nightly/205/LumenUpdate-2.2.0-nightly.7-arm64.zip": {
+            "custom": {
+              "architectures": [
+                "arm64"
+              ],
+              "bundleIdentifier": "com.example.lumen",
+              "bundleVersion": 205,
+              "channel": "nightly",
+              "critical": true,
+              "minimumSystemVersion": "13.0",
+              "productID": "com.example.lumen",
+              "releaseNotesTarget": "notes/2.2.0-nightly.7.md",
+              "rollout": {
+                "percentage": 100,
+                "seed": "nightly-205"
+              },
+              "shortVersion": "2.2.0-nightly.7"
+            },
+            "hashes": {
+              "sha256": "e0d6e8b09c21ff2708cd1bbc6079210e75156d35d9611fc23b22115892106739"
+            },
+            "length": 120
+          }
+        },
+        "type": "targets",
+        "version": 8
+      }
+    },
+    "timestamp.json": {
+      "signatures": [
+        {
+          "keyid": "cd0c7d75ba897dd7a66adc60e9630d729d211a212dbf658e5d888e4d941fcdd6",
+          "sig": "mxKfLmtIDmeuDgj7nuK5+RkR+quOn/DQGR0alSzuwljfcAnp3EPNTGtS2vWk1nqq5HN9IUsPL+mYhEiYsn1yAA=="
+        }
+      ],
+      "signed": {
+        "custom": {
+          "repository": "Lumen Update test vectors",
+          "scenario": "valid-nightly-arm64"
+        },
+        "expires": "2030-01-01T00:00:00Z",
+        "meta": {
+          "snapshot.json": {
+            "hashes": {
+              "sha256": "3eeca10a8278593c829313fdfbc31bf159beea9bd0714257a7112e793667d9e8"
+            },
+            "length": 874,
+            "version": 8
+          }
+        },
+        "spec_version": "1.0.0",
+        "type": "timestamp",
+        "version": 8
+      }
+    }
+  },
+  "vectorVersion": 1
+}

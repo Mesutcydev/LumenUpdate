@@ -1,0 +1,140 @@
+{
+  "canonicalization": "sorted-key compact JSON for signing (UTF-8, no extra whitespace); vector files are pretty-printed for readability.",
+  "files": [
+    {
+      "description": "Stable arm64 update for com.example.lumen at 2.0.3 with fully valid signatures and metadata.",
+      "expectedResult": "accept",
+      "file": "01-valid-stable-arm64.json"
+    },
+    {
+      "description": "Stable universal update carrying both arm64 and x86_64 architectures.",
+      "expectedResult": "accept",
+      "file": "02-valid-stable-universal.json"
+    },
+    {
+      "description": "Beta channel arm64 update with valid signatures and matching product metadata.",
+      "expectedResult": "accept",
+      "file": "03-valid-beta-arm64.json"
+    },
+    {
+      "description": "Nightly arm64 update with a critical flag and valid signatures.",
+      "expectedResult": "accept",
+      "file": "04-valid-nightly-arm64.json"
+    },
+    {
+      "description": "Stable arm64 update for bundle version 204 and short version 2.0.4.",
+      "expectedResult": "accept",
+      "file": "05-valid-stable-arm64-v204.json"
+    },
+    {
+      "description": "Stable arm64 update with later metadata versions and long-lived expiry dates.",
+      "expectedResult": "accept",
+      "file": "06-valid-stable-arm64-long-expiry.json"
+    },
+    {
+      "description": "Stable arm64 update with an alternate release notes target and valid signatures.",
+      "expectedResult": "accept",
+      "file": "07-valid-stable-arm64-alt-notes.json"
+    },
+    {
+      "description": "Stable update whose target explicitly supports arm64 and x86_64.",
+      "expectedResult": "accept",
+      "file": "08-valid-stable-multi-arch-target.json"
+    },
+    {
+      "description": "Root metadata is signed by both trusted root keys and should satisfy the threshold.",
+      "expectedResult": "accept",
+      "file": "09-valid-root-threshold-met.json"
+    },
+    {
+      "description": "Fresh timestamp metadata with a later revision number but still valid signatures and expiry.",
+      "expectedResult": "accept",
+      "file": "10-valid-timestamp-refresh.json"
+    },
+    {
+      "description": "targets.json has a deliberately corrupted Ed25519 signature byte.",
+      "expectedError": "SIGNATURE_INVALID",
+      "expectedResult": "reject",
+      "file": "11-reject-signature-byte-wrong.json",
+      "whatIsWrong": "signature byte 5 in targets.json was flipped after signing"
+    },
+    {
+      "description": "Root metadata is signed by only one of two required root keys.",
+      "expectedError": "THRESHOLD_NOT_MET",
+      "expectedResult": "reject",
+      "file": "12-reject-root-threshold-failure.json",
+      "whatIsWrong": "root.json has only 1 of 2 required signatures"
+    },
+    {
+      "description": "Targets metadata is signed by only one of two required targets keys.",
+      "expectedError": "THRESHOLD_NOT_MET",
+      "expectedResult": "reject",
+      "file": "13-reject-targets-threshold-failure.json",
+      "whatIsWrong": "targets.json has only 1 of 2 required signatures"
+    },
+    {
+      "description": "Timestamp metadata expired in the past.",
+      "expectedError": "METADATA_EXPIRED",
+      "expectedResult": "reject",
+      "file": "14-reject-expired-timestamp.json",
+      "whatIsWrong": "timestamp.json expires in the past"
+    },
+    {
+      "description": "Snapshot metadata expired in the past.",
+      "expectedError": "METADATA_EXPIRED",
+      "expectedResult": "reject",
+      "file": "15-reject-expired-snapshot.json",
+      "whatIsWrong": "snapshot.json expires in the past"
+    },
+    {
+      "description": "Snapshot and timestamp versions roll back below the trusted version.",
+      "expectedError": "ROLLBACK_DETECTED",
+      "expectedResult": "reject",
+      "file": "16-reject-rollback-snapshot.json",
+      "whatIsWrong": "snapshot.json and timestamp.json are version 3, below the trusted version 5"
+    },
+    {
+      "description": "Target metadata advertises the wrong product identifier.",
+      "expectedError": "PRODUCT_MISMATCH",
+      "expectedResult": "reject",
+      "file": "17-reject-wrong-product.json",
+      "whatIsWrong": "target custom.productID is com.other.product instead of com.example.lumen"
+    },
+    {
+      "description": "Target metadata advertises the wrong release channel.",
+      "expectedError": "CHANNEL_MISMATCH",
+      "expectedResult": "reject",
+      "file": "18-reject-wrong-channel.json",
+      "whatIsWrong": "target custom.channel is beta instead of stable"
+    },
+    {
+      "description": "Target metadata advertises the wrong CPU architecture.",
+      "expectedError": "ARCHITECTURE_MISMATCH",
+      "expectedResult": "reject",
+      "file": "19-reject-wrong-architecture.json",
+      "whatIsWrong": "target custom.architectures is x86_64 instead of arm64"
+    },
+    {
+      "description": "Snapshot metadata and targets metadata come from different signed revisions.",
+      "expectedError": "MIX_AND_MATCH_DETECTED",
+      "expectedResult": "reject",
+      "file": "20-reject-mix-and-match.json",
+      "whatIsWrong": "snapshot.json hashes the stable target, but the vector includes a beta targets.json"
+    },
+    {
+      "description": "Bundle version fast-forwards far beyond the trusted update line.",
+      "expectedError": "FAST_FORWARD_DETECTED",
+      "expectedResult": "reject",
+      "file": "21-reject-fast-forward.json",
+      "whatIsWrong": "bundleVersion jumps from 203 to 999 without an intermediate trusted release"
+    },
+    {
+      "description": "Timestamp metadata is signed only by a key that does not exist in root.json.",
+      "expectedError": "UNKNOWN_KEY",
+      "expectedResult": "reject",
+      "file": "22-reject-unknown-key.json",
+      "whatIsWrong": "timestamp.json is signed only by a rogue key that is not listed in root.json"
+    }
+  ],
+  "vectorVersion": 1
+}
