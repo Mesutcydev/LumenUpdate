@@ -82,6 +82,17 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
+        .executableTarget(
+            name: "independent-demo",
+            dependencies: [
+                "LumenCore",
+                "LumenTUF",
+                "LumenInstall",
+                "LumenUpdateSDK",
+                "LumenTesting",
+            ],
+            path: "Examples/IndependentDemo"
+        ),
         .testTarget(
             name: "LumenCoreTests",
             dependencies: ["LumenCore", "LumenTesting"]
